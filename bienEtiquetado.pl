@@ -7,7 +7,9 @@ bienEtiquetado_aux(Set_Et_Nodos, Set_Et_Aristas, Et_Nodo1, [Arista | L_Aristas])
 	bienEtiquetado_aux(Set_Et_Nodos, Set_Et_Aristas, Et_Nodo1, L_Aristas).
 
 bienEtiquetado_aux(Set_Et_Nodos, Set_Et_Aristas, Et_Nodo1, arista(Et_Arista,nodo(Et_Nodo2,Aristas2))) :-
+	not(member(Et_Nodo2,Set_Et_Nodos)),
+	not(member(Et_Arista,Set_Et_Aristas)),
 	Dif is Et_Nodo1-Et_Nodo2,
 	abs(Dif, Dif_Abs),
 	Dif_Abs == Et_Arista,
-	bienEtiquetado_aux(Et_Nodo2,Aristas2).
+	bienEtiquetado_aux([Et_Nodo2 | Set_Et_Nodos], [Et_Arista | Set_Et_Aristas], Et_Nodo2, Aristas2).
