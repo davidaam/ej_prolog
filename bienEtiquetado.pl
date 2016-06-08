@@ -1,4 +1,8 @@
-bienEtiquetado(nodo(R,E)) :- bienEtiquetado_aux(R,E).
+bienEtiquetado(nodo(Et_Nodo,Aristas)) :- bienEtiquetado_aux(Et_Nodo,Aristas).
 bienEtiquetado_aux(_,[]).
-bienEtiquetado_aux(R,[A | E]) :- bienEtiquetado_aux(R,A), bienEtiquetado_aux(R,E).
-bienEtiquetado_aux(R,arista(RA,nodo(R1,X))) :- RR is R-R1, RABS is abs(RR), RA == RABS , bienEtiquetado(nodo(R1,X)).
+bienEtiquetado_aux(Et_Nodo1,[Arista | L_Aristas]) :- bienEtiquetado_aux(Et_Nodo1,Arista), bienEtiquetado_aux(Et_Nodo1,L_Aristas).
+bienEtiquetado_aux(Et_Nodo1,arista(Et_Arista,nodo(Et_Nodo2,Aristas2))) :-
+	Dif is Et_Nodo1-Et_Nodo2,
+	abs(Dif, Dif_Abs),
+	Dif_Abs == Et_Arista,
+	bienEtiquetado_aux(Et_Nodo2,Aristas2).
