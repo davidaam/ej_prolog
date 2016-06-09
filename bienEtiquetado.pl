@@ -13,7 +13,7 @@ bienEtiquetado(nodo(Et_Nodo,Aristas)) :-
 
 % Un árbol está bien etiquetado si para toda arista se cumple la condición de buen etiquetamiento
 bienEtiquetado_aux(N,Set_Et_Nodos, Set_Et_Aristas, Et_Nodo1, [Arista | L_Aristas]) :-
-	bienEtiquetado_aux(N,Set_Et_Nodos, Set_Et_Aristas, Et_Nodo1, L_Aristas).
+	bienEtiquetado_aux(N,Set_Et_Nodos, Set_Et_Aristas, Et_Nodo1, L_Aristas),
 	bienEtiquetado_aux(N,Set_Et_Nodos, Set_Et_Aristas, Et_Nodo1, Arista),
 
 % Una arista cumple con la condición de buen etiquetamiento si la etiqueta de la arista es igual
@@ -43,4 +43,3 @@ tamArbol(nodo(_, Aristas),N) :- tamArbol(Aristas,_N), N is _N+1.
 tamArbol([ arista(_,Sub_Arbol) | Aristas2],N) :-
 	tamArbol(Sub_Arbol,N1),
 	tamArbol(Aristas2,N2), N is N1+N2.
-
