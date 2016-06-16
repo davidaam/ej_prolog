@@ -47,7 +47,8 @@ genAristasHojas(0,[]) :- !.
 genAristasHojas(Tam,[arista(X,nodo(Y,[])) | Resto]) :- T is Tam - 1, genAristasHojas(T, Resto).
 
 etiquetamiento([[]],_,_,[]) :- !.
-etiquetamiento([[Cab] | Lista], Arbol) :- etiquetamiento(Lista, 0, Cab, L), etiquetar(nodo(EtNodo,L),Arbol).
+
+etiquetamiento(esq([[Cab] | Lista]), Arbol) :- etiquetamiento(Lista, 0, Cab, L), etiquetar(nodo(EtNodo,L),Arbol).
 
 etiquetamiento([[0 | Resto]],Inicio,Tam,Aristas) :- genAristasHojas(Tam,Aristas), !.
 
@@ -115,6 +116,8 @@ etiquetar([arista(EtArista,nodo(EtNodo,Aristas)) | Resto], EtPadre, ListaN, List
 		    etiquetar(Resto, EtPadre, ListaNR, ListaAR, ListaNDef, ListaADef, Resto)
 		); (fail, !)
 	).
+
+esqEtiquetable(R,N) :- forall(esqueleto(N,R,X),etiquetamiento(X,A)).
 
 
 describirEtiquetamiento(nodo(E,Aristas)) :- 
