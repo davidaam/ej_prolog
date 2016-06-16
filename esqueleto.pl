@@ -40,13 +40,15 @@ slice([Cabeza | Resto], 0, 0, []) :- !.
 slice([Cabeza | Resto], 0, Tam, [Cabeza | L]):- T is Tam - 1, slice(Resto,0,T,L). 
 slice([Cabeza | Resto], Inicio, Tam, L) :- I is Inicio-1, T is Tam-1, slice(Resto, I, T, L).
 
-head([X | _],X).
+head([X | _],X) :- !.
 
-etiquetamiento([[]],_,_,[]).
+
+genAristasHojas(0,[]) :- !.
+genAristasHojas(Tam,[arista(X,nodo(Y,[])) | Resto]) :- T is Tam - 1, genAristasHojas(T, Resto).
+
+etiquetamiento([[]],_,_,[]) :- !.
 etiquetamiento([[Cab] | Lista], Arbol) :- etiquetamiento(Lista, 0, Cab, L), etiquetar(nodo(EtNodo,L),Arbol).
 
-genAristasHojas(0,[]).
-genAristasHojas(Tam,[arista(X,nodo(Y,[])) | Resto]) :- T is Tam - 1, genAristasHojas(T, Resto).
 etiquetamiento([[0 | Resto]],Inicio,Tam,Aristas) :- genAristasHojas(Tam,Aristas), !.
 
 etiquetamiento([[Cabeza | Cola] | [LAristas | Resto]], Inicio, Tam, [arista(EtArista,nodo(EtNodo,Arista)) | RestoAristas]) :-
@@ -55,10 +57,10 @@ etiquetamiento([[Cabeza | Cola] | [LAristas | Resto]], Inicio, Tam, [arista(EtAr
 	etiquetamiento([MisAristas | Resto],Inicio, Cabeza, Arista),
 	((head(Cola,CabSig),
 		etiquetamiento([Cola | [LAristas | Resto]],ISig,CabSig,RestoAristas)
-	); RestoAristas = [], !).
+	); (RestoAristas = [])), !.
 
 % Caso base: Si un nodo no tiene subarboles, el tamaño de sus subarboles es 0
-tamArbol([],0).
+tamArbol([],0) :- !.
 
 % El tamaño de un arbol es 1 + el tamaño de sus subarboles hijos
 tamArbol(nodo(_, Aristas),N) :- tamArbol(Aristas,_N), N is _N+1.
@@ -81,15 +83,18 @@ etiquetar(Arbol, ArbolN):-
 etiquetar([],_,ListaN,ListaA,ListaN,ListaA,[]).
 
 etiquetar(nodo(EtNodo, [arista(EtArista,nodo(EtNodo2,Aristas2)) | Aristas]), ListaN,ListaA, nodo(EtNodo, [arista(EtArista,nodo(EtNodo2,Aristas2)) | Aristas])) :-
-    tamArbol(nodo(EtNodo, [arista(EtArista,nodo(EtNodo2,Aristas2)) | Aristas]), N),
-    between(1,N,EtNodo),
-    ESig is EtNodo + 1,
-    between(ESig,N,EtNodo2),
+    length(ListaN, N),
+    between(1,N,I1),
+    nth1(I1,ListaN,EtNodo),
+    delete(ListaN,EtNodo,LTmp),
+    N2 is N - 1,
+    between(1,N2,I2),
+    nth1(I2,LTmp,EtNodo2),
+    delete(LTmp,EtNodo2,ListaNSig),
     EtArista is abs(EtNodo-EtNodo2),
     (
     	(
 	    	member(EtArista,ListaA),
-		    subtract(ListaN,[EtNodo,EtNodo2],ListaNSig),
 		    delete(ListaA,EtArista,ListaASig),
 		    etiquetar(Aristas2, EtNodo2, ListaNSig, ListaASig, ListaNR, ListaAR, Aristas2),
 		    etiquetar(Aristas, EtNodo, ListaNR, ListaAR, ListaADef, ListaNDef, Aristas)
