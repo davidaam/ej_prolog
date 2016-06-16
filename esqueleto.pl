@@ -1,7 +1,16 @@
+% Andres Rocha
+% 12-11247
+% David Atias
+% 12-10771
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Ejercicio 1 de la parte 2 del proyecto
+
+% Predicado que devuelve una serie de "0" 
 repeat(_,K,[]) :- K =< 0, !.
 repeat(Num,Times,[Num | L]) :- Times_ is Times-1, repeat(Num,Times_,L), !.
 
-
+% 
 esqueleto(1,_,[0]) :- !.
 
 esqueleto(N,R,esq([[HijosRaiz] | Lista])) :-
@@ -18,6 +27,8 @@ esqueleto(N,R,HijosAnterior,[L1 | Resto]) :-
 	RSig is min(NSig,R),
 	esqueleto(NSig, RSig, TamSig, Resto).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Ejercicio 2 de la parte 2 del proyecto
 
 constrLista(N,R,TamLista,L) :-
 	Max is min(N,R),
@@ -34,7 +45,8 @@ constrLista(N,R,Min,Restantes,Tam,[Cabeza | L]) :-
 	TamSig is Tam - 1,
 	RSig is min(Max,Cabeza),
 	constrLista(N, RSig, 0, RestantesSig, TamSig, L).
-
+	
+% Predicado para obtener una seccion de una lista
 slice([],_,_,[]) :- !.
 slice([Cabeza | Resto], 0, 0, []) :- !.
 slice([Cabeza | Resto], 0, Tam, [Cabeza | L]):- T is Tam - 1, slice(Resto,0,T,L). 
@@ -42,19 +54,27 @@ slice([Cabeza | Resto], Inicio, Tam, L) :- I is Inicio-1, T is Tam-1, slice(Rest
 
 head([X | _],X) :- !.
 
+% Proponemos la respuesta al problema de forma que al recibir el esqueleto
+% lo convertimos en un arbol que corresponda al esqueleto con etiquetas
+% genericas para luego etiquetarlo 
 
 genAristasHojas(0,[]) :- !.
 genAristasHojas(Tam,[arista(X,nodo(Y,[])) | Resto]) :- T is Tam - 1, genAristasHojas(T, Resto).
 
 etiquetamiento([[]],_,_,[]) :- !.
 
-etiquetamiento(esq([[Cab] | Lista]), Arbol) :- etiquetamiento(Lista, 0, Cab, L), etiquetar(nodo(EtNodo,L),Arbol).
+etiquetamiento(esq([[Cab] | Lista]), Arbol) :- 
+	etiquetamiento(Lista, 0, Cab, L), 
+	etiquetar(nodo(EtNodo,L),Arbol).
 
 etiquetamiento([[0 | Resto]],Inicio,Tam,Aristas) :- genAristasHojas(Tam,Aristas), !.
 
 etiquetamiento([[Cabeza | Cola] | [LAristas | Resto]], Inicio, Tam, [arista(EtArista,nodo(EtNodo,Arista)) | RestoAristas]) :-
+	% sumamos cuantos elementos correspondieron a mis hermanos para buscar a mis hijos
 	ISig is Inicio + Cabeza,
 	slice(LAristas, Inicio, ISig, MisAristas),
+	% llamamos recursivamente con mi padre
+	%   y el resto del esqueleto para las llamadas siguientes
 	etiquetamiento([MisAristas | Resto],Inicio, Cabeza, Arista),
 	((head(Cola,CabSig),
 		etiquetamiento([Cola | [LAristas | Resto]],ISig,CabSig,RestoAristas)
@@ -71,14 +91,16 @@ tamArbol(nodo(_, Aristas),N) :- tamArbol(Aristas,_N), N is _N+1.
 tamArbol([ arista(_,Sub_Arbol) | Aristas2],N) :-
 	tamArbol(Sub_Arbol,N1),
 	tamArbol(Aristas2,N2), N is N1+N2.
-	
+% genera las listas de nodos para darle seguimiento a laos nodos que restan para etiquetar	
 generarL(0, []) :- !.
 generarL(N, [N | Lista]):- Nsig is N-1, generarL(Nsig,Lista).
 	
 etiquetar(Arbol, ArbolN):-
+    % Generamos las listas de Aristas y de nodos a partir del tamaño del arbol
     tamArbol(Arbol, N), 
     generarL(N, ListaN),
     delete(ListaN, N,ListaA),
+    % Llamamos a nuestro predicado de etiquetado  auxiliar
     etiquetar(Arbol, ListaN,ListaA, ArbolN).
 
 etiquetar([],_,ListaN,ListaA,ListaN,ListaA,[]).
@@ -116,9 +138,15 @@ etiquetar([arista(EtArista,nodo(EtNodo,Aristas)) | Resto], EtPadre, ListaN, List
 		    etiquetar(Resto, EtPadre, ListaNR, ListaAR, ListaNDef, ListaADef, Resto)
 		); (fail, !)
 	).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Ejercicio 3 de la parte 2 del proyecto
 
 esqEtiquetable(R,N) :- forall(esqueleto(N,R,X),etiquetamiento(X,A)).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Ejercicio 4 de la parte 2 del proyecto
+% Imprimimos de manera de recorrido profundo con el nivel del nodo y quien es su padre separados pro ","
+% con su etiqueta despues de " : " y la etiqueta de la arista
 
 describirEtiquetamiento(nodo(E,Aristas)) :- 
 	write(0), write(": "), write(E), nl,
